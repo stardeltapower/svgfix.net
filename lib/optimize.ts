@@ -41,7 +41,6 @@ export async function optimizeSvg(svgString: string): Promise<string> {
               },
               // Keep structure intact
               removeViewBox: false,
-              removeDimensions: false,
             },
           },
         },
