@@ -1,35 +1,37 @@
 ---
-const currentYear = new Date().getFullYear();
+
 ---
 
-<footer class="border-t border-[rgb(var(--color-border))] bg-[rgb(var(--color-bg))] mt-auto">
+<footer class="bg-[rgb(var(--color-bg))] mt-auto">
   <div class="container mx-auto px-4 py-6">
-    <div class="flex flex-col md:flex-row items-center justify-between gap-4">
-      <div class="text-sm text-[rgb(var(--color-text-secondary))]">
-        <p>
-          SVGFix is free forever. Like it?
-          <a
-            href="https://buymeacoffee.com/stardelta"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="text-[rgb(var(--color-primary))] hover:underline"
-          >
-            Buy me a coffee
-          </a>
-        </p>
-      </div>
-      <div class="text-sm text-[rgb(var(--color-text-secondary))]">
-        Built by
+    <div
+      class="flex flex-col sm:flex-row items-center justify-center gap-2 text-sm text-[rgb(var(--color-text-secondary))]"
+    >
+      <span>Free forever.</span>
+      <span class="hidden sm:inline">·</span>
+      <span>
+        Like it?
         <a
-          href="https://stardeltasoftware.com"
+          href="https://buymeacoffee.com/stardelta"
           target="_blank"
           rel="noopener noreferrer"
           class="text-[rgb(var(--color-primary))] hover:underline"
         >
-          Star Delta Software
+          Buy me a coffee
         </a>
-        &copy; {currentYear}
-      </div>
+      </span>
+      <span class="hidden sm:inline">·</span>
+      <span>
+        Built by
+        <a
+          href="https://stardelta.io"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-[rgb(var(--color-primary))] hover:underline"
+        >
+          StarDelta
+        </a>
+      </span>
     </div>
   </div>
 </footer>

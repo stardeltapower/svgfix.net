@@ -1,223 +1,222 @@
 <template>
-  <div class="svg-tool max-w-7xl mx-auto">
-    <!-- Tool Header -->
-    <div class="mb-6 text-center">
-      <h1 class="text-3xl font-bold text-[rgb(var(--color-text))] mb-2">
-        SVG ViewBox Normalizer
-      </h1>
-      <p class="text-[rgb(var(--color-text-secondary))]">
-        Crop whitespace and transform path coordinates to origin
-      </p>
-    </div>
+  <div class="svg-tool min-h-[70vh] flex flex-col items-center justify-center px-4">
+    <!-- Initial State: Drop Zone -->
+    <div v-if="state === 'empty'" class="w-full max-w-2xl">
+      <div
+        class="drop-zone relative border-2 border-dashed rounded-2xl p-12 md:p-20 text-center cursor-pointer transition-all duration-200"
+        :class="{
+          'border-[rgb(var(--color-primary))] bg-[rgb(var(--color-primary))]/5': isDragging,
+          'border-[rgb(var(--color-border))] hover:border-[rgb(var(--color-primary))]': !isDragging,
+        }"
+        @dragover.prevent="isDragging = true"
+        @dragleave.prevent="isDragging = false"
+        @drop.prevent="handleDrop"
+        @click="triggerFileInput"
+      >
+        <input
+          ref="fileInput"
+          type="file"
+          accept=".svg,image/svg+xml"
+          class="hidden"
+          @change="handleFileUpload"
+        />
 
-    <!-- Main Tool Interface -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-      <!-- Input Section -->
-      <div class="surface p-4">
-        <h2 class="text-lg font-semibold text-[rgb(var(--color-text))] mb-3">Input SVG</h2>
+        <svg
+          class="w-16 h-16 mx-auto mb-4 text-[rgb(var(--color-primary))]"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.5"
+            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+          />
+        </svg>
 
-        <!-- File Upload -->
-        <div class="mb-4">
-          <label
-            class="block w-full p-8 border-2 border-dashed border-[rgb(var(--color-border))] rounded-lg text-center cursor-pointer hover:border-[rgb(var(--color-primary))] transition-colors"
-            @dragover.prevent
-            @drop.prevent="handleDrop"
+        <p class="text-lg md:text-xl font-medium text-[rgb(var(--color-text))] mb-2">
+          Drop your SVG here
+        </p>
+        <p class="text-sm text-[rgb(var(--color-text-secondary))]">or click to upload</p>
+      </div>
+
+      <!-- Paste Input -->
+      <div class="mt-6 text-center">
+        <button
+          class="text-sm text-[rgb(var(--color-primary))] hover:underline"
+          @click="showPasteInput = !showPasteInput"
+        >
+          {{ showPasteInput ? 'Hide paste input' : 'or paste SVG markup' }}
+        </button>
+
+        <div v-if="showPasteInput" class="mt-4">
+          <textarea
+            v-model="pasteInput"
+            class="w-full h-32 p-4 text-sm font-mono bg-[rgb(var(--color-surface))] border border-[rgb(var(--color-border))] rounded-lg resize-none focus:outline-none focus:border-[rgb(var(--color-primary))]"
+            placeholder="Paste your SVG code here..."
+            @paste="handlePaste"
+          />
+          <button
+            v-if="pasteInput.trim()"
+            class="mt-3 px-6 py-2 bg-[rgb(var(--color-primary))] text-white rounded-lg hover:bg-[rgb(var(--color-primary-hover))] transition-colors"
+            @click="processFromPaste"
           >
-            <svg class="w-12 h-12 mx-auto mb-2 text-[rgb(var(--color-text-secondary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-            </svg>
-            <span class="text-[rgb(var(--color-text-secondary))]">
-              Drop SVG file here or click to browse
-            </span>
-            <input
-              type="file"
-              accept=".svg,image/svg+xml"
-              class="hidden"
-              @change="handleFileUpload"
+            Fix SVG
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Processing State -->
+    <div v-else-if="state === 'processing'" class="text-center">
+      <div
+        class="w-12 h-12 mx-auto mb-4 border-4 border-[rgb(var(--color-primary))] border-t-transparent rounded-full animate-spin"
+      />
+      <p class="text-[rgb(var(--color-text-secondary))]">Processing...</p>
+    </div>
+
+    <!-- Result State -->
+    <div v-else-if="state === 'result'" class="w-full max-w-2xl text-center">
+      <!-- SVG Preview -->
+      <div
+        class="mb-6 p-8 bg-[rgb(var(--color-surface))] border border-[rgb(var(--color-border))] rounded-2xl"
+      >
+        <div class="svg-preview max-h-64 mx-auto" v-html="outputSvg" />
+      </div>
+
+      <!-- Success Badge -->
+      <div class="mb-6">
+        <span
+          class="inline-flex items-center px-4 py-2 bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] rounded-full font-medium"
+        >
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 13l4 4L19 7"
             />
-          </label>
-        </div>
-
-        <!-- Code Editor -->
-        <textarea
-          v-model="inputSvg"
-          class="code-editor w-full h-64 resize-y"
-          placeholder="Or paste your SVG code here..."
-        ></textarea>
+          </svg>
+          Fixed! Saved {{ reduction }}% ({{ formatBytes(stats?.originalSize || 0) }} →
+          {{ formatBytes(stats?.processedSize || 0) }})
+        </span>
       </div>
 
-      <!-- Output Section -->
-      <div class="surface p-4">
-        <h2 class="text-lg font-semibold text-[rgb(var(--color-text))] mb-3">Output SVG</h2>
-
-        <!-- Preview -->
-        <div class="mb-4 p-4 bg-[rgb(var(--color-bg))] border border-[rgb(var(--color-border))] rounded-lg h-48 flex items-center justify-center overflow-hidden">
-          <div v-if="outputSvg" v-html="outputSvg" class="svg-preview"></div>
-          <span v-else class="text-[rgb(var(--color-text-secondary))]">
-            Preview will appear here
-          </span>
-        </div>
-
-        <!-- Output Code -->
-        <textarea
-          v-model="outputSvg"
-          class="code-editor w-full h-64 resize-y"
-          readonly
-          placeholder="Processed SVG will appear here..."
-        ></textarea>
+      <!-- Action Buttons -->
+      <div class="flex flex-wrap justify-center gap-3">
+        <button
+          class="px-6 py-3 bg-[rgb(var(--color-primary))] text-white rounded-lg font-medium hover:bg-[rgb(var(--color-primary-hover))] transition-colors"
+          @click="downloadSvg"
+        >
+          Download
+        </button>
+        <button
+          class="px-6 py-3 bg-[rgb(var(--color-surface))] text-[rgb(var(--color-text))] border border-[rgb(var(--color-border))] rounded-lg font-medium hover:bg-[rgb(var(--color-border))] transition-colors"
+          @click="copyToClipboard"
+        >
+          {{ copied ? 'Copied!' : 'Copy' }}
+        </button>
+        <button
+          class="px-6 py-3 bg-[rgb(var(--color-surface))] text-[rgb(var(--color-text))] border border-[rgb(var(--color-border))] rounded-lg font-medium hover:bg-[rgb(var(--color-border))] transition-colors"
+          @click="reset"
+        >
+          Fix Another
+        </button>
       </div>
     </div>
 
-    <!-- Processing Options -->
-    <div class="surface p-4 mb-6">
-      <h2 class="text-lg font-semibold text-[rgb(var(--color-text))] mb-3">Processing Options</h2>
-      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        <label class="flex items-center space-x-2 cursor-pointer">
-          <input type="checkbox" v-model="options.cropWhitespace" class="rounded" />
-          <span class="text-sm text-[rgb(var(--color-text))]">Crop Whitespace</span>
-        </label>
-        <label class="flex items-center space-x-2 cursor-pointer">
-          <input type="checkbox" v-model="options.transformToOrigin" class="rounded" />
-          <span class="text-sm text-[rgb(var(--color-text))]">Transform to Origin</span>
-        </label>
-        <label class="flex items-center space-x-2 cursor-pointer">
-          <input type="checkbox" v-model="options.normalizeViewBox" class="rounded" />
-          <span class="text-sm text-[rgb(var(--color-text))]">Normalize ViewBox</span>
-        </label>
-        <label class="flex items-center space-x-2 cursor-pointer">
-          <input type="checkbox" v-model="options.optimize" class="rounded" />
-          <span class="text-sm text-[rgb(var(--color-text))]">Optimize (SVGO)</span>
-        </label>
-        <label class="flex items-center space-x-2 cursor-pointer">
-          <input type="checkbox" v-model="options.minify" class="rounded" />
-          <span class="text-sm text-[rgb(var(--color-text))]">Minify Output</span>
-        </label>
+    <!-- Error State -->
+    <div v-else-if="state === 'error'" class="w-full max-w-2xl text-center">
+      <div
+        class="mb-6 p-8 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl"
+      >
+        <svg
+          class="w-12 h-12 mx-auto mb-4 text-red-500"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+        <p class="text-red-800 dark:text-red-200">
+          {{ error }}
+        </p>
       </div>
-    </div>
-
-    <!-- Action Buttons -->
-    <div class="flex flex-wrap gap-4 justify-center mb-6">
       <button
-        @click="processSvgFile"
-        :disabled="!inputSvg || processing"
-        class="btn btn-primary px-8 py-3 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+        class="px-6 py-3 bg-[rgb(var(--color-primary))] text-white rounded-lg font-medium hover:bg-[rgb(var(--color-primary-hover))] transition-colors"
+        @click="reset"
       >
-        <span v-if="processing">Processing...</span>
-        <span v-else>Fix SVG</span>
+        Try Again
       </button>
-      <button
-        @click="downloadSvg"
-        :disabled="!outputSvg"
-        class="btn btn-secondary px-8 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        Download
-      </button>
-      <button
-        @click="copyToClipboard"
-        :disabled="!outputSvg"
-        class="btn btn-secondary px-8 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        {{ copied ? 'Copied!' : 'Copy' }}
-      </button>
-      <button
-        @click="clearAll"
-        class="btn btn-secondary px-8 py-3"
-      >
-        Clear
-      </button>
-    </div>
-
-    <!-- Error/Success Messages -->
-    <div v-if="error" class="surface p-4 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 mb-6">
-      <p class="text-red-800 dark:text-red-200">{{ error }}</p>
-    </div>
-    <div v-if="success" class="surface p-4 bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 mb-6">
-      <p class="text-green-800 dark:text-green-200">{{ success }}</p>
-    </div>
-
-    <!-- Statistics -->
-    <div v-if="stats" class="surface p-4">
-      <h2 class="text-lg font-semibold text-[rgb(var(--color-text))] mb-3">Statistics</h2>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-        <div>
-          <span class="text-[rgb(var(--color-text-secondary))]">Original Size:</span>
-          <span class="ml-2 font-semibold text-[rgb(var(--color-text))]">{{ stats.originalSize }} bytes</span>
-        </div>
-        <div>
-          <span class="text-[rgb(var(--color-text-secondary))]">Processed Size:</span>
-          <span class="ml-2 font-semibold text-[rgb(var(--color-text))]">{{ stats.processedSize }} bytes</span>
-        </div>
-        <div>
-          <span class="text-[rgb(var(--color-text-secondary))]">Reduction:</span>
-          <span class="ml-2 font-semibold text-[rgb(var(--color-text))]">{{ reduction }}%</span>
-        </div>
-        <div>
-          <span class="text-[rgb(var(--color-text-secondary))]">ViewBox:</span>
-          <span class="ml-2 font-semibold text-[rgb(var(--color-text))]">{{ viewBoxInfo }}</span>
-        </div>
-      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { processSvg, type ProcessingOptions, type ProcessingResult } from '@lib/index';
+import { processSvg, type ProcessingResult } from '@lib/index';
 
-const inputSvg = ref('');
+type State = 'empty' | 'processing' | 'result' | 'error';
+
+const state = ref<State>('empty');
+const isDragging = ref(false);
+const showPasteInput = ref(false);
+const pasteInput = ref('');
 const outputSvg = ref('');
-const processing = ref(false);
 const error = ref('');
-const success = ref('');
 const copied = ref(false);
 const stats = ref<ProcessingResult['stats'] | null>(null);
-
-const options = ref<ProcessingOptions>({
-  cropWhitespace: true,
-  transformToOrigin: true,
-  normalizeViewBox: true,
-  optimize: true,
-  minify: false,
-});
+const fileInput = ref<HTMLInputElement | null>(null);
+const originalFileName = ref('fixed.svg');
 
 const reduction = computed(() => {
   if (!stats.value) return 0;
   const { originalSize, processedSize } = stats.value;
+  if (originalSize === 0) return 0;
   return Math.round(((originalSize - processedSize) / originalSize) * 100);
 });
 
-const viewBoxInfo = computed(() => {
-  if (!stats.value) return 'N/A';
-  const vb = stats.value.viewBoxAfter;
-  return `${vb.minX} ${vb.minY} ${vb.width} ${vb.height}`;
-});
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes}B`;
+  return `${(bytes / 1024).toFixed(1)}KB`;
+}
 
-async function processSvgFile() {
-  if (!inputSvg.value.trim()) return;
+function triggerFileInput() {
+  fileInput.value?.click();
+}
 
-  processing.value = true;
+async function processInput(svgContent: string) {
+  state.value = 'processing';
   error.value = '';
-  success.value = '';
   stats.value = null;
 
   try {
-    const result = await processSvg(inputSvg.value, options.value);
+    // Auto-apply all processing options
+    const result = await processSvg(svgContent, {
+      cropWhitespace: true,
+      transformToOrigin: true,
+      normalizeViewBox: true,
+      optimize: true,
+      minify: false,
+    });
 
     if (result.success) {
       outputSvg.value = result.svg;
       stats.value = result.stats;
-      success.value = 'SVG processed successfully!';
-
-      if (result.warnings.length > 0) {
-        success.value += ' Warnings: ' + result.warnings.join(', ');
-      }
+      state.value = 'result';
     } else {
-      error.value = 'Processing failed: ' + result.errors.join(', ');
+      error.value = result.errors.join(', ') || 'Failed to process SVG';
+      state.value = 'error';
     }
   } catch (err) {
-    error.value = `Error: ${err instanceof Error ? err.message : 'Unknown error'}`;
-  } finally {
-    processing.value = false;
+    error.value = err instanceof Error ? err.message : 'Unknown error occurred';
+    state.value = 'error';
   }
 }
 
@@ -226,25 +225,54 @@ function handleFileUpload(event: Event) {
   const file = target.files?.[0];
   if (!file) return;
 
+  originalFileName.value = file.name.replace('.svg', '-fixed.svg');
+
   const reader = new FileReader();
   reader.onload = (e) => {
-    inputSvg.value = e.target?.result as string;
+    const content = e.target?.result as string;
+    if (content) {
+      processInput(content);
+    }
   };
   reader.readAsText(file);
 }
 
 function handleDrop(event: DragEvent) {
+  isDragging.value = false;
   const file = event.dataTransfer?.files[0];
-  if (!file || !file.name.endsWith('.svg')) {
+
+  if (!file) return;
+
+  if (!file.name.endsWith('.svg') && file.type !== 'image/svg+xml') {
     error.value = 'Please drop a valid SVG file';
+    state.value = 'error';
     return;
   }
 
+  originalFileName.value = file.name.replace('.svg', '-fixed.svg');
+
   const reader = new FileReader();
   reader.onload = (e) => {
-    inputSvg.value = e.target?.result as string;
+    const content = e.target?.result as string;
+    if (content) {
+      processInput(content);
+    }
   };
   reader.readAsText(file);
+}
+
+function handlePaste(event: ClipboardEvent) {
+  const text = event.clipboardData?.getData('text');
+  if (text && text.includes('<svg')) {
+    pasteInput.value = text;
+  }
+}
+
+function processFromPaste() {
+  if (pasteInput.value.trim()) {
+    originalFileName.value = 'pasted-fixed.svg';
+    processInput(pasteInput.value);
+  }
 }
 
 function downloadSvg() {
@@ -254,7 +282,7 @@ function downloadSvg() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'fixed.svg';
+  a.download = originalFileName.value;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -275,26 +303,22 @@ async function copyToClipboard() {
   }
 }
 
-function clearAll() {
-  inputSvg.value = '';
+function reset() {
+  state.value = 'empty';
   outputSvg.value = '';
   error.value = '';
-  success.value = '';
   stats.value = null;
+  pasteInput.value = '';
+  showPasteInput.value = false;
+  originalFileName.value = 'fixed.svg';
 }
 </script>
 
 <style scoped>
-.svg-tool {
-  /* Scoped styles if needed */
-}
-
 .svg-preview {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  height: 100%;
 }
 
 .svg-preview :deep(svg) {

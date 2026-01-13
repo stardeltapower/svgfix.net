@@ -43,24 +43,38 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <meta property="twitter:image" content={new URL('/og-image.svg', Astro.site)} />
 
     <!-- Structured Data -->
-    <script type="application/ld+json" set:html={JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "SVGFix",
-      "description": "Free online tool to normalize SVG viewBox and crop whitespace",
-      "url": "https://svgfix.net",
-      "applicationCategory": "DesignApplication",
-      "operatingSystem": "Any",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      },
-      "author": {
-        "@type": "Organization",
-        "name": "Star Delta Software Ltd"
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'WebApplication',
+        name: 'SVGFix',
+        description: 'Free online tool to normalize SVG viewBox and crop whitespace',
+        url: 'https://svgfix.net',
+        applicationCategory: 'DesignApplication',
+        operatingSystem: 'Any',
+        offers: {
+          '@type': 'Offer',
+          price: '0',
+          priceCurrency: 'USD',
+        },
+        author: {
+          '@type': 'Organization',
+          name: 'Star Delta Software Ltd',
+        },
+      })}
+    />
+
+    <!-- Google Analytics 4 -->
+    <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-RC45XTZLH0"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        window.dataLayer.push(arguments);
       }
-    })} />
+      gtag('js', new Date());
+      gtag('config', 'G-RC45XTZLH0');
+    </script>
 
     <!-- Prevent FOUC with theme script -->
     <script is:inline>

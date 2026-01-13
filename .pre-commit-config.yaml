@@ -1,3 +1,5 @@
+# Pre-commit hooks for SVGFix
+# Version pinned to ensure CI/CD consistency
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
@@ -12,20 +14,21 @@ repos:
     hooks:
       - id: eslint
         name: eslint
-        entry: pnpm exec eslint
+        entry: pnpm exec eslint . --ext .js,.ts,.astro,.vue
         language: system
-        types: [javascript, typescript]
+        types: [file]
+        files: \.(js|ts|astro|vue)$
         pass_filenames: false
-        args: ['.', '--ext', '.js,.ts,.astro,.vue']
 
       - id: prettier
         name: prettier
-        entry: pnpm exec prettier --check
+        entry: pnpm exec prettier --check .
         language: system
-        types: [javascript, typescript, json, yaml, markdown]
+        types: [file]
+        files: \.(js|ts|json|yaml|yml|md|astro|vue|css)$
         pass_filenames: false
 
-      - id: astro-check
+      - id: typecheck
         name: astro check
         entry: pnpm exec astro check
         language: system

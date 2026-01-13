@@ -3,71 +3,21 @@ import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import SvgTool from '../components/SvgTool.vue';
-import Faq from '../components/Faq.astro';
 ---
 
 <Layout>
   <Header />
 
-  <main class="flex-1 container mx-auto px-4 py-8">
-    <div class="max-w-7xl mx-auto">
-      <!-- SVG Tool UI -->
-      <SvgTool client:load />
-
-      <!-- SEO Content Below the Fold -->
-      <section class="mt-16 space-y-12">
-        <div>
-          <h2 class="text-2xl font-bold text-[rgb(var(--color-text))] mb-4">
-            What This Tool Does
-          </h2>
-          <p class="text-[rgb(var(--color-text-secondary))] mb-4">
-            SVGFix properly normalizes SVG files by not just adjusting the viewBox attribute, but
-            actually translating path coordinates so everything genuinely starts at <code class="px-2 py-1 bg-[rgb(var(--color-surface))] rounded">0 0</code>.
-            This solves real-world issues when converting SVGs to PNG or using them in icon systems.
-          </p>
-          <p class="text-[rgb(var(--color-text-secondary))]">
-            The tool performs a 5-step process: <strong>Parse</strong> (extract viewBox and paths),
-            <strong>Calculate Bounds</strong> (find content bounding box), <strong>Crop</strong> (remove whitespace),
-            <strong>Transform</strong> (translate coordinates to origin), and <strong>Optimize</strong> (reduce file size).
-          </p>
-        </div>
-
-        <div>
-          <h2 class="text-2xl font-bold text-[rgb(var(--color-text))] mb-4">
-            Why You Need This
-          </h2>
-          <ul class="list-disc list-inside text-[rgb(var(--color-text-secondary))] space-y-2">
-            <li>SVGs exported from design tools often have offset viewBox coordinates</li>
-            <li>Converting to PNG crops incorrectly when viewBox doesn't start at 0,0</li>
-            <li>Icon systems expect normalized coordinates for proper rendering</li>
-            <li>Other tools only adjust viewBox without transforming actual path data</li>
-            <li>Embedding SVGs in applications can fail with non-normalized viewBox</li>
-          </ul>
-        </div>
-
-        <div>
-          <h2 class="text-2xl font-bold text-[rgb(var(--color-text))] mb-4">
-            Frequently Asked Questions
-          </h2>
-          <Faq />
-        </div>
-
-        <div>
-          <h2 class="text-2xl font-bold text-[rgb(var(--color-text))] mb-4">
-            Technical Details
-          </h2>
-          <p class="text-[rgb(var(--color-text-secondary))] mb-4">
-            SVGFix uses <code class="px-2 py-1 bg-[rgb(var(--color-surface))] rounded">svg-path-commander</code> for accurate
-            path transformations and bounding box calculations. All processing happens client-side using pure JavaScript,
-            ensuring your files never leave your browser.
-          </p>
-          <p class="text-[rgb(var(--color-text-secondary))]">
-            The tool supports all SVG path commands including lines, curves, arcs, and complex shapes.
-            Optional SVGO optimization reduces file size while preserving visual quality.
-          </p>
-        </div>
-      </section>
+  <main class="flex-1 flex flex-col">
+    <!-- Tagline -->
+    <div class="text-center pt-8 pb-4">
+      <p class="text-[rgb(var(--color-text-secondary))]">
+        Fix viewBox issues. Crop whitespace. Optimize output.
+      </p>
     </div>
+
+    <!-- SVG Tool UI -->
+    <SvgTool client:load />
   </main>
 
   <Footer />
