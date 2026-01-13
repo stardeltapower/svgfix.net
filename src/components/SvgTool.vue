@@ -51,8 +51,8 @@
         <h2 class="text-lg font-semibold text-[rgb(var(--color-text))] mb-3">Output SVG</h2>
 
         <!-- Preview -->
-        <div class="mb-4 p-4 bg-[rgb(var(--color-bg))] border border-[rgb(var(--color-border))] rounded-lg h-48 flex items-center justify-center">
-          <div v-if="outputSvg" v-html="outputSvg" class="max-w-full max-h-full"></div>
+        <div class="mb-4 p-4 bg-[rgb(var(--color-bg))] border border-[rgb(var(--color-border))] rounded-lg h-48 flex items-center justify-center overflow-hidden">
+          <div v-if="outputSvg" v-html="outputSvg" class="svg-preview"></div>
           <span v-else class="text-[rgb(var(--color-text-secondary))]">
             Preview will appear here
           </span>
@@ -287,5 +287,20 @@ function clearAll() {
 <style scoped>
 .svg-tool {
   /* Scoped styles if needed */
+}
+
+.svg-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.svg-preview :deep(svg) {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
 }
 </style>
