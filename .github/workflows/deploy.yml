@@ -42,7 +42,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-output
-          path: .output/
+          path: dist/
           include-hidden-files: true
           retention-days: 1
 
@@ -55,7 +55,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build-output
-          path: .output
+          path: dist
 
       - name: Setup SSH
         run: |
@@ -69,8 +69,8 @@ jobs:
           # Sync build output to VPS
           rsync -avz --delete \
             -e "ssh -p ${{ secrets.VPS_SSH_PORT }}" \
-            .output/ \
-            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/svgfix.net/.output/
+            dist/ \
+            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/svgfix.net/dist/
 
           # Restart the service
           ssh -p ${{ secrets.VPS_SSH_PORT }} ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} \
