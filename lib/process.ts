@@ -80,7 +80,7 @@ export async function processSvg(
     // Step 2: Calculate content bounds (needed for crop and transform)
     let bounds;
     try {
-      bounds = getContentBounds(parsed.paths);
+      bounds = await getContentBounds(parsed.paths);
     } catch (error) {
       errors.push(`Failed to calculate bounds: ${error instanceof Error ? error.message : 'unknown'}`);
       return {
@@ -122,7 +122,7 @@ export async function processSvg(
     // Step 4: Transform paths to origin
     if (opts.transformToOrigin && (currentViewBox.minX !== 0 || currentViewBox.minY !== 0)) {
       try {
-        processedSvg = transformPathsToOrigin(processedSvg, currentViewBox);
+        processedSvg = await transformPathsToOrigin(processedSvg, currentViewBox);
       } catch (error) {
         warnings.push(`Transform failed: ${error instanceof Error ? error.message : 'unknown'}`);
       }

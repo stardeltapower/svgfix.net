@@ -13,7 +13,7 @@
  * @example
  * ```typescript
  * const paths = ['M 10 10 L 90 90', 'M 50 50 L 150 150'];
- * const bbox = getContentBounds(paths);
+ * const bbox = await getContentBounds(paths);
  * // bbox = { x: 10, y: 10, x2: 150, y2: 150, width: 140, height: 140 }
  * ```
  *
@@ -21,7 +21,7 @@
  * ```typescript
  * // Single path
  * const paths = ['M 0 0 L 100 100'];
- * const bbox = getContentBounds(paths);
+ * const bbox = await getContentBounds(paths);
  * // bbox = { x: 0, y: 0, x2: 100, y2: 100, width: 100, height: 100 }
  * ```
  *
@@ -29,7 +29,7 @@
  *
  * @lastModified 2026-01-13
  */
-export function getContentBounds(paths: string[]): import('./types').BoundingBox {
+export async function getContentBounds(paths: string[]): Promise<import('./types').BoundingBox> {
   // Fail fast: validate input
   if (!Array.isArray(paths)) {
     throw new TypeError('paths must be an array');
@@ -52,7 +52,7 @@ export function getContentBounds(paths: string[]): import('./types').BoundingBox
   let maxY = -Infinity;
 
   // Use svg-path-commander to get accurate bounding boxes
-  const { getPathBBox } = require('svg-path-commander');
+  const { getPathBBox } = await import('svg-path-commander');
 
   for (const pathData of validPaths) {
     try {
@@ -62,7 +62,7 @@ export function getContentBounds(paths: string[]): import('./types').BoundingBox
       minY = Math.min(minY, bbox.y);
       maxX = Math.max(maxX, bbox.x2);
       maxY = Math.max(maxY, bbox.y2);
-    } catch (error) {
+    } catch {
       // Skip invalid paths but warn
       console.warn(`Failed to calculate bounds for path: ${pathData.substring(0, 50)}...`);
     }
@@ -96,18 +96,18 @@ export function getContentBounds(paths: string[]): import('./types').BoundingBox
  *
  * @example
  * ```typescript
- * const bbox = getPathBounds('M 10 10 L 90 90');
+ * const bbox = await getPathBounds('M 10 10 L 90 90');
  * // bbox = { x: 10, y: 10, x2: 90, y2: 90, width: 80, height: 80 }
  * ```
  *
  * @lastModified 2026-01-13
  */
-export function getPathBounds(pathData: string): import('./types').BoundingBox {
+export async function getPathBounds(pathData: string): Promise<import('./types').BoundingBox> {
   if (typeof pathData !== 'string') {
     throw new TypeError('pathData must be a string');
   }
 
-  const { getPathBBox } = require('svg-path-commander');
+  const { getPathBBox } = await import('svg-path-commander');
 
   try {
     const bbox = getPathBBox(pathData);

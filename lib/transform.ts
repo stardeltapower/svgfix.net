@@ -15,7 +15,7 @@
  * ```typescript
  * const svg = '<svg viewBox="50 50 100 100"><path d="M 60 60 L 140 140"/></svg>';
  * const viewBox = { minX: 50, minY: 50, width: 100, height: 100 };
- * const transformed = transformPathsToOrigin(svg, viewBox);
+ * const transformed = await transformPathsToOrigin(svg, viewBox);
  * // Path is now "M 10 10 L 90 90" (translated by -50, -50)
  * ```
  *
@@ -23,10 +23,10 @@
  *
  * @lastModified 2026-01-13
  */
-export function transformPathsToOrigin(
+export async function transformPathsToOrigin(
   svgString: string,
   viewBox: import('./types').ViewBox
-): string {
+): Promise<string> {
   if (typeof svgString !== 'string') {
     throw new TypeError('svgString must be a string');
   }
@@ -40,7 +40,7 @@ export function transformPathsToOrigin(
     return svgString;
   }
 
-  const { transformPath, pathToString } = require('svg-path-commander');
+  const { transformPath, pathToString } = await import('svg-path-commander');
 
   // Transform each path
   const pathRegex = /(<path[^>]*\sd=["'])([MLHVCSQTAZmlhvcsqtaz][^"']*)["']/gi;
@@ -52,7 +52,7 @@ export function transformPathsToOrigin(
       });
       const newPathData = pathToString(translated);
       return `${prefix}${newPathData}"`;
-    } catch (error) {
+    } catch {
       console.warn(`Failed to transform path: ${pathData.substring(0, 50)}...`);
       return match; // Keep original on error
     }

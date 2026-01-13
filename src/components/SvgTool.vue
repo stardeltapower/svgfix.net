@@ -270,7 +270,7 @@ async function copyToClipboard() {
     setTimeout(() => {
       copied.value = false;
     }, 2000);
-  } catch (err) {
+  } catch {
     error.value = 'Failed to copy to clipboard';
   }
 }
