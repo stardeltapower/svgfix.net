@@ -1,4 +1,6 @@
 ---
+import '../styles/global.css';
+
 interface Props {
   title?: string;
   description?: string;
@@ -70,10 +72,6 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
         document.documentElement.classList.add(defaultTheme);
       })();
     </script>
-
-    <style>
-      @import '../styles/global.css';
-    </style>
   </head>
   <body class="flex flex-col min-h-screen">
     <slot />
