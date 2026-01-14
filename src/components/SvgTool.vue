@@ -325,7 +325,7 @@ function reset() {
 
 .svg-boundary {
   display: inline-block;
-  border: 1px dashed rgba(var(--color-border), 0.5);
+  border: 1px dashed rgba(128, 128, 128, 0.6);
 }
 
 .svg-boundary :deep(svg) {
