@@ -52,7 +52,7 @@ export async function getContentBounds(paths: string[]): Promise<import('./types
   let maxY = -Infinity;
 
   // Use svg-path-commander to get accurate bounding boxes
-  const svgPathCommander = await import('svg-path-commander') as any;
+  const svgPathCommander = (await import('svg-path-commander')) as any;
   const getPathBBox = svgPathCommander.getPathBBox || svgPathCommander.default?.getPathBBox;
 
   for (const pathData of validPaths) {
@@ -108,7 +108,7 @@ export async function getPathBounds(pathData: string): Promise<import('./types')
     throw new TypeError('pathData must be a string');
   }
 
-  const svgPathCommander = await import('svg-path-commander') as any;
+  const svgPathCommander = (await import('svg-path-commander')) as any;
   const getPathBBox = svgPathCommander.getPathBBox || svgPathCommander.default?.getPathBBox;
 
   try {
@@ -122,6 +122,8 @@ export async function getPathBounds(pathData: string): Promise<import('./types')
       height: bbox.y2 - bbox.y,
     };
   } catch (error) {
-    throw new Error(`Invalid path data: ${error instanceof Error ? error.message : 'unknown error'}`);
+    throw new Error(
+      `Invalid path data: ${error instanceof Error ? error.message : 'unknown error'}`
+    );
   }
 }

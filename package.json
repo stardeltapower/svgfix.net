@@ -60,11 +60,21 @@
     "online",
     "free"
   ],
-  "author": "Star Delta Software Ltd",
+  "author": {
+    "name": "StarDelta",
+    "url": "https://stardelta.io"
+  },
   "license": "MIT",
   "homepage": "https://svgfix.net",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/svgfix.com.git"
+    "url": "https://github.com/stardeltaio/svgfix.net.git"
+  },
+  "bugs": {
+    "url": "https://github.com/stardeltaio/svgfix.net/issues"
+  },
+  "funding": {
+    "type": "buymeacoffee",
+    "url": "https://buymeacoffee.com/stardelta"
   }
 }

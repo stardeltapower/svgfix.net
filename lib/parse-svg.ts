@@ -120,7 +120,10 @@ export function parseViewBox(viewBoxStr: string): import('./types').ViewBox {
     throw new TypeError('viewBox must be a string');
   }
 
-  const parts = viewBoxStr.trim().split(/[\s,]+/).map(Number);
+  const parts = viewBoxStr
+    .trim()
+    .split(/[\s,]+/)
+    .map(Number);
 
   if (parts.length !== 4 || parts.some(isNaN)) {
     throw new Error(`Invalid viewBox format: "${viewBoxStr}"`);

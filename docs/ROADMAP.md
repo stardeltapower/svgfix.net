@@ -187,6 +187,7 @@ The tool is **100% free** with full functionality. This is a hobby project under
 ### Revenue Stream: Buy Me a Coffee (Primary)
 
 **Why Buy Me a Coffee:**
+
 - No traffic requirements (works from day 1)
 - No exclusive contracts
 - 5% fee only (you keep 95%)
@@ -195,11 +196,13 @@ The tool is **100% free** with full functionality. This is a hobby project under
 - Non-intrusive - just a footer link
 
 **Implementation:**
+
 ```
 Footer: "SVGFix is free forever. Like it? [Buy me a coffee] | Built by Star Delta Software"
 ```
 
 **Realistic expectations:**
+
 - Niche tool = 1-5 coffees/month once established
 - At £3/coffee = £3-15/month
 - Easily covers domain (~£11/year)
@@ -209,12 +212,13 @@ Footer: "SVGFix is free forever. Like it? [Buy me a coffee] | Built by Star Delt
 
 If traffic grows significantly, consider applying to:
 
-| Network | Min Traffic | Notes |
-|---------|-------------|-------|
-| Carbon Ads | 10k/month | Developer-focused, exclusive |
-| EthicalAds | 50k/month | Privacy-respecting, $2.50 CPM |
+| Network    | Min Traffic | Notes                         |
+| ---------- | ----------- | ----------------------------- |
+| Carbon Ads | 10k/month   | Developer-focused, exclusive  |
+| EthicalAds | 50k/month   | Privacy-respecting, $2.50 CPM |
 
 **Ad placement rules (if ever implemented):**
+
 - Single ad below the tool only
 - Never above the fold
 - No mobile ads
@@ -237,6 +241,7 @@ If traffic grows significantly, consider applying to:
 ### Target Keywords
 
 **Primary (high intent, lower competition):**
+
 - "svg viewbox normalizer"
 - "svg crop whitespace online"
 - "fix svg viewbox"
@@ -244,12 +249,14 @@ If traffic grows significantly, consider applying to:
 - "normalize svg coordinates"
 
 **Secondary (broader, educational):**
+
 - "svg viewbox explained"
 - "svg offset coordinates fix"
 - "svg to png cropping issues"
 - "svg icon system problems"
 
 **Long-tail (FAQ targets):**
+
 - "why does my svg have offset viewbox"
 - "svg paths not starting at 0 0"
 - "convert svg to png cuts off image"
@@ -365,12 +372,15 @@ For developers who want to understand the process
 ## Open Questions
 
 1. **Code editor choice:** Monaco (feature-rich, large) vs CodeMirror (lighter) vs plain textarea (simplest)?
+
    - Recommendation: Start with textarea, upgrade if users request
 
 2. **SVGO configuration:** Which plugins to enable by default?
+
    - Recommendation: Safe defaults only, no lossy optimizations
 
 3. **Batch processing:** Support multiple files?
+
    - Recommendation: v1 single file only, batch in v2 if requested
 
 4. **Open source:** Public repo from day 1?
@@ -385,14 +395,14 @@ For developers who want to understand the process
 **Server:** VPS2 (shared with other Star Delta projects)
 **SSH:** `ssh vps2`
 
-| Component | Details |
-|-----------|---------|
-| App directory | `/var/www/svgfix.net` |
-| Port | 3001 |
-| Systemd service | `svgfix.service` |
-| nginx config | `/etc/nginx/sites-enabled/svgfix.net` |
-| SSL | Let's Encrypt (auto-renew via certbot) |
-| Logs | `/var/log/svgfix.net.log` |
+| Component       | Details                                |
+| --------------- | -------------------------------------- |
+| App directory   | `/var/www/svgfix.net`                  |
+| Port            | 3001                                   |
+| Systemd service | `svgfix.service`                       |
+| nginx config    | `/etc/nginx/sites-enabled/svgfix.net`  |
+| SSL             | Let's Encrypt (auto-renew via certbot) |
+| Logs            | `/var/log/svgfix.net.log`              |
 
 ### Deployment Commands
 
@@ -423,11 +433,11 @@ ssh vps2 "tail -f /var/log/svgfix.net.log"
 
 ### Fixed Costs
 
-| Item | Cost | Frequency |
-|------|------|-----------|
-| Domain (svgfix.net) | ~£11 | Annual |
-| VPS hosting | £0 | Shared with other projects |
-| **Total** | **~£11/year** | |
+| Item                | Cost          | Frequency                  |
+| ------------------- | ------------- | -------------------------- |
+| Domain (svgfix.net) | ~£11          | Annual                     |
+| VPS hosting         | £0            | Shared with other projects |
+| **Total**           | **~£11/year** |                            |
 
 ### Revenue Target
 
@@ -438,12 +448,107 @@ This is achievable once the tool has ~500+ monthly visitors.
 
 ---
 
+## Phase 6: Minimal UI Redesign
+
+**Status:** Planned
+**Goal:** Strip down to SVGCrop-style simplicity
+**Reference:** See `docs/COMPETITIVE-ANALYSIS.md` for full research
+
+### Design Inspiration
+
+Based on competitive analysis, the most successful minimal tools (SVGCrop, svgfix.com) share:
+
+- Single large drop zone (70%+ of viewport)
+- ~20 words of text total
+- Auto-process on upload (no "Fix" button)
+- Results with Download/Copy buttons
+- Coffee/donation link in footer
+
+### Proposed Layout
+
+See `docs/COMPETITIVE-ANALYSIS.md` → Appendix A for ASCII wireframes.
+
+**Before upload:**
+
+- Logo + dark/light toggle
+- Giant drop zone with "Drop your SVG here"
+- One-line tagline
+- Footer with coffee link + StarDelta attribution
+
+**After upload:**
+
+- SVG preview
+- "Fixed! Saved X%" badge
+- Download / Copy / Fix Another buttons
+
+### Colour Scheme Options
+
+**Option A: Teal (matches griddata.uk)**
+
+```css
+--color-primary: #2dd4bf;
+--color-primary-hover: #06b6d4;
+```
+
+**Option B: Golden (matches stardeltapower.co.uk)**
+
+```css
+--color-primary: #c9a47a;
+--color-primary-hover: #a67c52;
+```
+
+**Option C: Fresh/Distinct (recommended for differentiation)**
+
+```css
+--color-primary: #10b981; /* Emerald green - "fix/success" connotation */
+--color-primary-hover: #059669;
+```
+
+### Changes Required
+
+**Remove:**
+
+- Two-column input/output layout
+- 5 processing option checkboxes
+- Input/output textareas
+- Statistics panel (inline the savings)
+- SEO content sections (move to /about or remove)
+
+**Keep:**
+
+- Drop zone (make huge)
+- SVG preview
+- Download/Copy buttons
+- Dark/light mode toggle
+- Coffee link
+
+**Add:**
+
+- Auto-process on file drop
+- Inline "Saved X%" success badge
+- StarDelta attribution in footer
+
+---
+
 ## Changelog
 
 ### 2025-01-13
+
 - Initial roadmap created
 - Defined 5 implementation phases
 - Simplified monetization to Buy Me a Coffee only
 - Added costs & revenue section
 - Domain confirmed: svgfix.net
 - VPS infrastructure set up (nginx, systemd, SSL)
+
+### 2026-01-13
+
+- [x] Competitive analysis completed (see `docs/COMPETITIVE-ANALYSIS.md`)
+- [x] Screenshots captured of 6 competitor tools
+- [x] stardelta.io landing page created and deployed
+- [x] StarDelta brand identity established:
+  - Domain: stardelta.io
+  - GitHub: github.com/stardeltaio
+  - Email: hello@stardelta.io
+  - Buy Me a Coffee: buymeacoffee.com/stardelta
+- [ ] Minimal UI redesign (in progress)

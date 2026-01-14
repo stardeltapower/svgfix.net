@@ -23,10 +23,7 @@
  *
  * @lastModified 2026-01-13
  */
-export function cropToContent(
-  svgString: string,
-  bounds: import('./types').BoundingBox
-): string {
+export function cropToContent(svgString: string, bounds: import('./types').BoundingBox): string {
   if (typeof svgString !== 'string') {
     throw new TypeError('svgString must be a string');
   }

@@ -44,12 +44,7 @@ export default {
           'Arial',
           'sans-serif',
         ],
-        mono: [
-          '"Fira Code"',
-          '"Courier New"',
-          'Courier',
-          'monospace',
-        ],
+        mono: ['"Fira Code"', '"Courier New"', 'Courier', 'monospace'],
       },
     },
   },

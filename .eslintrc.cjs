@@ -39,12 +39,5 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'warn',
     'no-console': ['warn', { allow: ['warn', 'error'] }],
   },
-  ignorePatterns: [
-    'dist',
-    '.output',
-    '.astro',
-    'node_modules',
-    'coverage',
-    'playwright-report',
-  ],
+  ignorePatterns: ['dist', '.output', '.astro', 'node_modules', 'coverage', 'playwright-report'],
 };

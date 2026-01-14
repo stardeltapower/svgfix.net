@@ -82,7 +82,9 @@
       <div
         class="mb-6 p-8 bg-[rgb(var(--color-surface))] border border-[rgb(var(--color-border))] rounded-2xl"
       >
-        <div class="svg-preview max-h-64 mx-auto" v-html="outputSvg" />
+        <div class="svg-preview max-h-64 mx-auto">
+          <div class="svg-boundary" v-html="outputSvg" />
+        </div>
       </div>
 
       <!-- Success Badge -->
@@ -321,9 +323,15 @@ function reset() {
   justify-content: center;
 }
 
-.svg-preview :deep(svg) {
+.svg-boundary {
+  display: inline-block;
+  border: 1px dashed rgba(var(--color-border), 0.5);
+}
+
+.svg-boundary :deep(svg) {
+  display: block;
   max-width: 100%;
-  max-height: 100%;
+  max-height: 256px;
   width: auto;
   height: auto;
 }

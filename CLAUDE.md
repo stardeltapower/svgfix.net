@@ -3,6 +3,7 @@
 This file is the authoritative reference for Claude Code agents working in this repository.
 
 **Critical References:**
+
 - **[ROADMAP.md](docs/ROADMAP.md)** - v1.0 feature roadmap and phase tracking
 - **[LIVE_CONTEXT.md](LIVE_CONTEXT.md)** - Current work, blockers, decisions (update frequently)
 
@@ -29,22 +30,26 @@ This file is the authoritative reference for Claude Code agents working in this 
 **MANDATORY**: Never skip planning. Use Plan mode BEFORE implementation.
 
 1. **Explore** (Research phase)
+
    - Ask Claude to examine relevant files WITHOUT writing code
    - Understand the problem space thoroughly
    - Identify constraints and dependencies
 
 2. **Plan** (Design phase)
+
    - Use Plan mode (`/plan` or EnterPlanMode tool)
    - Create numbered plan in `docs/plans/##-feature-name.md`
    - Get user approval before proceeding
 
 3. **Code** (Implementation phase)
+
    - Small, focused diffs
    - Test-driven development (write tests FIRST)
    - **Work in parallel** - Use multiple tool calls in a single message when tasks are independent
    - Commit after EVERY working feature
 
 4. **Test** (Validation phase)
+
    - **Run tests in parallel** - Execute multiple test suites simultaneously when independent
    - Validate coverage meets thresholds
    - Fix any failing tests immediately
@@ -59,6 +64,7 @@ This file is the authoritative reference for Claude Code agents working in this 
 **CRITICAL: Always work in parallel when possible.**
 
 During implementation and testing:
+
 - **Make multiple tool calls in a single message** when tasks are independent
 - **Read multiple files simultaneously** if they're all needed
 - **Run tests in parallel** - Execute unit tests, linting, and type checking concurrently
@@ -122,6 +128,7 @@ All in one message with 3 Bash tool calls
 Pure TypeScript functions for SVG manipulation. This is the core business logic.
 
 **MUST:**
+
 - Contain only pure TypeScript (no framework dependencies)
 - Export typed functions with full TSDoc documentation
 - Have unit tests for every exported function
@@ -129,6 +136,7 @@ Pure TypeScript functions for SVG manipulation. This is the core business logic.
 - Validate inputs and throw on invalid SVG
 
 **MUST NOT:**
+
 - Import Vue, Astro, or any UI framework code
 - Manipulate DOM directly (work with SVG strings)
 - Make network requests
@@ -139,12 +147,14 @@ Pure TypeScript functions for SVG manipulation. This is the core business logic.
 Reusable UI components with Vue for the interactive tool.
 
 **MUST:**
+
 - Use `.astro` for static components (header, footer, layout pieces)
 - Use `.vue` only for the main interactive tool component
 - Keep the Vue island self-contained
 - Import SVG processing logic from `/lib`
 
 **MUST NOT:**
+
 - Put SVG processing logic in components (use /lib)
 - Create multiple Vue islands (one is sufficient)
 - Mix React/Svelte - Vue only for this project
@@ -154,6 +164,7 @@ Reusable UI components with Vue for the interactive tool.
 All documentation lives here.
 
 **Required for every /lib function:**
+
 - Unit tests in /lib/tests
 - Markdown doc in /docs/functions/<function-name>.md
 
@@ -214,7 +225,7 @@ All documentation lives here.
 # .pre-commit-config.yaml
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0  # PINNED VERSION - update across project and CI
+    rev: v4.5.0 # PINNED VERSION - update across project and CI
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
@@ -243,10 +254,11 @@ repos:
         entry: pnpm exec astro check
         language: system
         pass_filenames: false
-        stages: [pre-push]  # Only on push, not every commit
+        stages: [pre-push] # Only on push, not every commit
 ```
 
 **Setup:**
+
 ```bash
 # Install pre-commit
 pip install pre-commit
@@ -284,6 +296,7 @@ pre-commit run --all-files
 **VPS (vps2) with nginx + systemd** (same as griddata.uk)
 
 **Server Details:**
+
 - SSH: `ssh vps2`
 - App directory: `/var/www/svgfix.net`
 - Port: 3001 (griddata.uk uses 3000)
@@ -291,6 +304,7 @@ pre-commit run --all-files
 - Logs: `/var/log/svgfix.net.log`
 
 **Deployment Process:**
+
 1. Build locally: `pnpm build`
 2. Copy `.output` to server: `rsync -avz .output/ vps2:/var/www/svgfix.net/.output/`
 3. Restart service: `ssh vps2 "sudo systemctl restart svgfix"`
@@ -299,6 +313,7 @@ pre-commit run --all-files
 **SSL:** Let's Encrypt via certbot (auto-renew)
 
 **Checklist for initial setup:**
+
 1. [ ] Create `/var/www/svgfix.net` directory
 2. [ ] Create systemd service file
 3. [ ] Create nginx config
@@ -318,6 +333,7 @@ pre-commit run --all-files
 - If you write similar code 3+ times, refactor it
 
 **When NOT to apply DRY:**
+
 - Code appears similar but serves different purposes
 - Abstraction makes code harder to understand
 - Two uses that might diverge in the future
@@ -331,6 +347,7 @@ pre-commit run --all-files
 - If a function needs extensive comments to explain, simplify it
 
 **Guidelines:**
+
 - Avoid deep nesting (max 3 levels)
 - Avoid functions longer than 50 lines
 - Prefer explicit over implicit
@@ -356,7 +373,10 @@ function parseViewBox(viewBox: string): ViewBox {
   if (!viewBox || typeof viewBox !== 'string') {
     throw new TypeError('viewBox must be a non-empty string');
   }
-  const parts = viewBox.trim().split(/[\s,]+/).map(Number);
+  const parts = viewBox
+    .trim()
+    .split(/[\s,]+/)
+    .map(Number);
   if (parts.length !== 4 || parts.some(isNaN)) {
     throw new Error(`Invalid viewBox format: "${viewBox}"`);
   }
@@ -409,7 +429,7 @@ function processSvg(svg, options) {
 
 ### TypeScript/JavaScript (TSDoc)
 
-```typescript
+````typescript
 /**
  * [One-line summary in imperative mood]
  *
@@ -442,15 +462,13 @@ function processSvg(svg, options) {
  *
  * @lastModified YYYY-MM-DD
  */
-export function myFunction(
-  paramName: string,
-  anotherParam: number
-): ReturnType {
+export function myFunction(paramName: string, anotherParam: number): ReturnType {
   // Implementation
 }
-```
+````
 
 **Required Sections:**
+
 - One-line summary (imperative mood)
 - Detailed description
 - `@param` for every parameter
@@ -481,6 +499,7 @@ export function myFunction(
 ### Context7 (Library Documentation)
 
 Always use Context7 MCP when you need:
+
 - Code generation involving external libraries
 - Setup or configuration steps for frameworks/tools
 - Library or API documentation lookup
@@ -489,6 +508,7 @@ Always use Context7 MCP when you need:
 **Usage:** Automatically use the Context7 MCP tools (`mcp__context7__resolve-library-id` and `mcp__context7__get-library-docs`) to fetch up-to-date documentation without being explicitly asked.
 
 **When to use:**
+
 - Before implementing features that use Astro, Vue, svg-path-commander, etc.
 - When encountering unexpected library behavior
 - When configuring build tools, plugins, or integrations
@@ -502,16 +522,19 @@ Always use Context7 MCP when you need:
 These features must be present from the initial implementation of any UI:
 
 1. **Light/Dark Mode** - All pages and components must support both themes
+
    - Use CSS variables for colors (defined in `src/styles/global.css`)
    - Use Tailwind's dark mode with class strategy
    - Never hardcode colors - always use theme variables
 
 2. **Mobile-Friendly** - All UI must be responsive from the start
+
    - Split-panel layout stacks vertically on mobile
    - Touch-friendly tap targets (minimum 44x44px)
    - No horizontal scrolling on mobile
 
 3. **Accessibility** - Use semantic HTML and ARIA attributes
+
    - All interactive elements must be keyboard accessible
    - Form inputs must have associated labels
    - Code editor must be accessible
@@ -539,6 +562,7 @@ Every page and critical flow must have tests:
 ```
 
 **Test Coverage Rules:**
+
 1. **All /lib functions require unit tests** - 90% coverage minimum
 2. **E2E tests for the main workflow** - Upload/paste → process → download
 3. **Test error states** - Invalid SVG, empty input, malformed paths
@@ -561,22 +585,26 @@ The tool performs these operations in order (user can toggle each):
 ### Critical Technical Details
 
 **Path Matching Regex:**
+
 ```typescript
 // Match path d attributes - must start with a valid path command
-/ d="([MLHVCSQTAZmlhvcsqtaz][^"]+)"/g
+/ d="([MLHVCSQTAZmlhvcsqtaz][^"]+)"/g;
 ```
+
 This ensures we only match actual path data, not `id="..."` or other attributes.
 
 **Coordinate Transformation:**
+
 ```typescript
 import { transformPath, pathToString } from 'svg-path-commander';
 
 const translated = transformPath(pathData, {
-  translate: [-viewBox.minX, -viewBox.minY]
+  translate: [-viewBox.minX, -viewBox.minY],
 });
 ```
 
 **Bounding Box Validation:**
+
 ```typescript
 import { getPathBBox } from 'svg-path-commander';
 
@@ -590,6 +618,7 @@ if (bbox.x < 0 || bbox.y < 0) {
 ### UI Layout
 
 Split-panel interface similar to svgviewer.dev:
+
 - **Left panel:** Code editor (Monaco or CodeMirror) + file upload dropzone
 - **Right panel:** Live SVG preview with zoom/pan
 - **Bottom/sidebar:** Processing options as checkboxes (all enabled by default)
@@ -604,16 +633,16 @@ Agents are defined in `/.claude/agents/` and enforce project rules automatically
 
 ### Agent Configuration
 
-| Agent | Model | Purpose |
-|-------|-------|---------|
-| **planner** | opus | Strategic planning, architectural decisions, multi-step task breakdown |
-| **frontend-dev** | sonnet | UI components, Astro/Vue development |
-| **architecture-guardian** | haiku | Validate /lib vs component separation, import checks |
-| **test-coverage-enforcer** | haiku | Verify 90% coverage on /lib, run tests |
-| **documentation-monitor** | haiku | Ensure docs stay in sync with code |
-| **repo-hygiene-enforcer** | haiku | Check folder structure, no floating files |
-| **release-manager** | haiku | Changelog and versioning |
-| **svg-validator** | haiku | Validate SVG processing logic correctness |
+| Agent                      | Model  | Purpose                                                                |
+| -------------------------- | ------ | ---------------------------------------------------------------------- |
+| **planner**                | opus   | Strategic planning, architectural decisions, multi-step task breakdown |
+| **frontend-dev**           | sonnet | UI components, Astro/Vue development                                   |
+| **architecture-guardian**  | haiku  | Validate /lib vs component separation, import checks                   |
+| **test-coverage-enforcer** | haiku  | Verify 90% coverage on /lib, run tests                                 |
+| **documentation-monitor**  | haiku  | Ensure docs stay in sync with code                                     |
+| **repo-hygiene-enforcer**  | haiku  | Check folder structure, no floating files                              |
+| **release-manager**        | haiku  | Changelog and versioning                                               |
+| **svg-validator**          | haiku  | Validate SVG processing logic correctness                              |
 
 ### Model Selection Guidelines
 

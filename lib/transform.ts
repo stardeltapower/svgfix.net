@@ -40,7 +40,7 @@ export async function transformPathsToOrigin(
     return svgString;
   }
 
-  const svgPathCommander = await import('svg-path-commander') as any;
+  const svgPathCommander = (await import('svg-path-commander')) as any;
   const transformPath = svgPathCommander.transformPath || svgPathCommander.default?.transformPath;
   const pathToString = svgPathCommander.pathToString || svgPathCommander.default?.pathToString;
 

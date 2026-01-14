@@ -82,7 +82,9 @@ export async function processSvg(
     try {
       bounds = await getContentBounds(parsed.paths);
     } catch (error) {
-      errors.push(`Failed to calculate bounds: ${error instanceof Error ? error.message : 'unknown'}`);
+      errors.push(
+        `Failed to calculate bounds: ${error instanceof Error ? error.message : 'unknown'}`
+      );
       return {
         svg: processedSvg,
         success: false,

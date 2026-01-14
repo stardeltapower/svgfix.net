@@ -44,8 +44,9 @@ export async function optimizeSvg(svgString: string): Promise<string> {
             },
           },
         },
-        'removeXMLNS', // Remove unnecessary xmlns
         'sortAttrs', // Sort attributes for consistency
+        // Note: We do NOT use 'removeXMLNS' because standalone SVG files
+        // require xmlns="http://www.w3.org/2000/svg" to render in browsers
       ],
     });
 

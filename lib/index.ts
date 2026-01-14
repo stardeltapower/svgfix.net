@@ -8,13 +8,7 @@
  */
 
 // Export types
-export type {
-  ViewBox,
-  BoundingBox,
-  ParsedSvg,
-  ProcessingOptions,
-  ProcessingResult,
-} from './types';
+export type { ViewBox, BoundingBox, ParsedSvg, ProcessingOptions, ProcessingResult } from './types';
 
 export { DEFAULT_OPTIONS } from './types';
 

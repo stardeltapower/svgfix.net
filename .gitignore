@@ -48,3 +48,8 @@ pnpm-debug.log*
 
 # Local development
 .astro/
+
+# Claude Code (AI assistant configuration - not needed in repo)
+.claude/
+CLAUDE.md
+LIVE_CONTEXT.md
