@@ -79,7 +79,7 @@ export async function preprocessSvg(svgString: string): Promise<string> {
             removeUseless: false,
             collapseRepeated: false,
             utilizeAbsolute: false,
-            makeArcs: false,
+            makeArcs: { threshold: 0, tolerance: 0 },
           },
         },
         // Step 5: Remove now-empty group wrappers
