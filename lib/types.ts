@@ -47,6 +47,8 @@ export interface ParsedSvg {
  * Options for SVG processing
  */
 export interface ProcessingOptions {
+  /** Preprocess: convert shapes to paths and bake transforms into coordinates */
+  preprocessShapes: boolean;
   /** Crop whitespace by calculating tight bounding box */
   cropWhitespace: boolean;
   /** Transform path coordinates to origin (0, 0) */
@@ -88,6 +90,7 @@ export interface ProcessingResult {
  * Default processing options with all features enabled
  */
 export const DEFAULT_OPTIONS: ProcessingOptions = {
+  preprocessShapes: true,
   cropWhitespace: true,
   transformToOrigin: true,
   normalizeViewBox: true,

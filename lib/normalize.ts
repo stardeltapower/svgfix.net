@@ -36,10 +36,20 @@ export function normalizeViewBox(svgString: string, width: number, height: numbe
 
   const newViewBox = `0 0 ${width} ${height}`;
 
+  let result = svgString;
+
   // Replace existing viewBox
-  if (svgString.includes('viewBox=')) {
-    return svgString.replace(/viewBox=["'][^"']*["']/i, `viewBox="${newViewBox}"`);
+  if (result.includes('viewBox=')) {
+    result = result.replace(/viewBox=["'][^"']*["']/i, `viewBox="${newViewBox}"`);
   } else {
-    return svgString.replace(/<svg/i, `<svg viewBox="${newViewBox}"`);
+    result = result.replace(/<svg/i, `<svg viewBox="${newViewBox}"`);
   }
+
+  // Remove explicit width/height and preserveAspectRatio from <svg> element
+  // so the SVG scales naturally based on its viewBox
+  result = result.replace(/(<svg[^>]*)\s+width=["'][^"']*["']/i, '$1');
+  result = result.replace(/(<svg[^>]*)\s+height=["'][^"']*["']/i, '$1');
+  result = result.replace(/(<svg[^>]*)\s+preserveAspectRatio=["'][^"']*["']/i, '$1');
+
+  return result;
 }

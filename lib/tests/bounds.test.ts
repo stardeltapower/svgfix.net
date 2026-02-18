@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getContentBounds, getPathBounds } from '../bounds';
+import { getContentBounds, getPathBounds, getTransformAwareBounds } from '../bounds';
 
 describe('getContentBounds', () => {
   it('should calculate bounds for single path', async () => {
@@ -75,6 +75,58 @@ describe('getContentBounds', () => {
     expect(result).toHaveProperty('y');
     expect(result).toHaveProperty('width');
     expect(result).toHaveProperty('height');
+  });
+});
+
+describe('getTransformAwareBounds', () => {
+  it('should handle identity matrix (no transform)', async () => {
+    const paths = [{ d: 'M 10 10 L 90 90', matrix: [1, 0, 0, 1, 0, 0] as [number, number, number, number, number, number] }];
+    const result = await getTransformAwareBounds(paths);
+
+    expect(result.x).toBe(10);
+    expect(result.y).toBe(10);
+    expect(result.x2).toBe(90);
+    expect(result.y2).toBe(90);
+  });
+
+  it('should apply translate transform to bounds', async () => {
+    const paths = [{ d: 'M 0 0 L 10 10', matrix: [1, 0, 0, 1, 50, 50] as [number, number, number, number, number, number] }];
+    const result = await getTransformAwareBounds(paths);
+
+    expect(result.x).toBe(50);
+    expect(result.y).toBe(50);
+    expect(result.x2).toBe(60);
+    expect(result.y2).toBe(60);
+    expect(result.width).toBe(10);
+    expect(result.height).toBe(10);
+  });
+
+  it('should apply scale transform to bounds via corner transformation', async () => {
+    const paths = [{ d: 'M 10 10 L 20 20', matrix: [2, 0, 0, 2, 0, 0] as [number, number, number, number, number, number] }];
+    const result = await getTransformAwareBounds(paths);
+
+    expect(result.x).toBe(20);
+    expect(result.y).toBe(20);
+    expect(result.x2).toBe(40);
+    expect(result.y2).toBe(40);
+  });
+
+  it('should compute union of transformed and untransformed paths', async () => {
+    type M = [number, number, number, number, number, number];
+    const paths = [
+      { d: 'M 100 100 L 150 150', matrix: [1, 0, 0, 1, 0, 0] as M },
+      { d: 'M 0 0 L 10 10', matrix: [1, 0, 0, 1, 50, 50] as M }, // translate(50, 50)
+    ];
+    const result = await getTransformAwareBounds(paths);
+
+    expect(result.x).toBe(50);
+    expect(result.y).toBe(50);
+    expect(result.x2).toBe(150);
+    expect(result.y2).toBe(150);
+  });
+
+  it('should throw for empty array', async () => {
+    await expect(() => getTransformAwareBounds([])).rejects.toThrow();
   });
 });
 

@@ -85,6 +85,99 @@ export async function getContentBounds(paths: string[]): Promise<import('./types
 }
 
 /**
+ * Calculate bounding boxes for SVG paths accounting for parent group transforms
+ *
+ * For each path, applies its accumulated transform matrix to the bounding box.
+ * Translation-only transforms are handled exactly. General transforms (rotate,
+ * scale, skew) transform the bbox corners and take the axis-aligned bounding box.
+ *
+ * @param pathsWithTransforms - Array of path d values with accumulated transform matrices
+ * @returns Union bounding box containing all transformed paths
+ *
+ * @throws {TypeError} When pathsWithTransforms is not an array
+ * @throws {Error} When array is empty or no valid bounds computed
+ *
+ * @example
+ * ```typescript
+ * const paths = [
+ *   { d: 'M 0 0 L 10 10', matrix: [1, 0, 0, 1, 50, 50] }, // translate(50, 50)
+ * ];
+ * const bbox = await getTransformAwareBounds(paths);
+ * // bbox = { x: 50, y: 50, x2: 60, y2: 60, width: 10, height: 10 }
+ * ```
+ *
+ * @lastModified 2026-02-18
+ */
+export async function getTransformAwareBounds(
+  pathsWithTransforms: Array<{ d: string; matrix: [number, number, number, number, number, number] }>
+): Promise<import('./types').BoundingBox> {
+  if (!Array.isArray(pathsWithTransforms)) {
+    throw new TypeError('pathsWithTransforms must be an array');
+  }
+
+  if (pathsWithTransforms.length === 0) {
+    throw new Error('pathsWithTransforms array cannot be empty');
+  }
+
+  const svgPathCommander = (await import('svg-path-commander')) as any;
+  const getPathBBox = svgPathCommander.getPathBBox || svgPathCommander.default?.getPathBBox;
+
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+
+  for (const { d, matrix } of pathsWithTransforms) {
+    if (!d || !d.trim()) continue;
+
+    try {
+      const bbox = getPathBBox(d);
+      const [a, b, c, dd, e, f] = matrix;
+      const isIdentity = a === 1 && b === 0 && c === 0 && dd === 1 && e === 0 && f === 0;
+
+      if (isIdentity) {
+        // No transform: use raw bbox
+        minX = Math.min(minX, bbox.x);
+        minY = Math.min(minY, bbox.y);
+        maxX = Math.max(maxX, bbox.x2);
+        maxY = Math.max(maxY, bbox.y2);
+      } else {
+        // Apply transform to all 4 bbox corners and take AABB
+        const corners = [
+          [bbox.x, bbox.y],
+          [bbox.x2, bbox.y],
+          [bbox.x2, bbox.y2],
+          [bbox.x, bbox.y2],
+        ];
+        for (const [cx, cy] of corners) {
+          const tx = a * cx + c * cy + e;
+          const ty = b * cx + dd * cy + f;
+          minX = Math.min(minX, tx);
+          minY = Math.min(minY, ty);
+          maxX = Math.max(maxX, tx);
+          maxY = Math.max(maxY, ty);
+        }
+      }
+    } catch {
+      console.warn(`Failed to calculate bounds for path: ${d.substring(0, 50)}...`);
+    }
+  }
+
+  if (!isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY)) {
+    throw new Error('failed to calculate bounds for any paths');
+  }
+
+  return {
+    x: minX,
+    y: minY,
+    x2: maxX,
+    y2: maxY,
+    width: maxX - minX,
+    height: maxY - minY,
+  };
+}
+
+/**
  * Get bounding box for a single path
  *
  * Helper function to get bounds for a single path.

@@ -37,8 +37,9 @@
  */
 import type { ProcessingOptions, ProcessingResult, ViewBox } from './types';
 import { DEFAULT_OPTIONS } from './types';
-import { parseSvg } from './parse-svg';
-import { getContentBounds } from './bounds';
+import { preprocessSvg } from './preprocess';
+import { parseSvg, extractVisualPathsWithTransforms } from './parse-svg';
+import { getContentBounds, getTransformAwareBounds } from './bounds';
 import { cropToContent } from './crop';
 import { transformPathsToOrigin } from './transform';
 import { normalizeViewBox } from './normalize';
@@ -55,13 +56,31 @@ export async function processSvg(
   const originalSize = svgString.length;
 
   try {
+    // Step 0: Preprocess - convert shapes to paths and bake transforms
+    let inputSvg = svgString;
+    if (opts.preprocessShapes) {
+      try {
+        inputSvg = await preprocessSvg(inputSvg);
+      } catch (error) {
+        warnings.push(
+          `Preprocessing failed, continuing with original SVG: ${error instanceof Error ? error.message : 'unknown'}`
+        );
+      }
+    }
+
     // Step 1: Parse SVG
-    const parsed = parseSvg(svgString);
+    const parsed = parseSvg(inputSvg);
     let processedSvg = parsed.originalSvg;
     const viewBoxBefore = parsed.viewBox;
 
-    // If no paths found, return early with warning
-    if (parsed.paths.length === 0) {
+    // Step 2: Calculate content bounds with transform awareness
+    // Uses accumulated group transforms so paths inside <g transform="...">
+    // contribute their actual rendered positions, not raw d coordinates.
+    // Also includes <image> element bounds for raster content.
+    const pathsWithTransforms = extractVisualPathsWithTransforms(parsed.element);
+
+    // If no visual content found at all, return early
+    if (parsed.paths.length === 0 && pathsWithTransforms.length === 0) {
       warnings.push('No paths found in SVG - nothing to process');
       return {
         svg: processedSvg,
@@ -77,10 +96,13 @@ export async function processSvg(
       };
     }
 
-    // Step 2: Calculate content bounds (needed for crop and transform)
     let bounds;
     try {
-      bounds = await getContentBounds(parsed.paths);
+      if (pathsWithTransforms.length > 0) {
+        bounds = await getTransformAwareBounds(pathsWithTransforms);
+      } else {
+        bounds = await getContentBounds(parsed.paths);
+      }
     } catch (error) {
       errors.push(
         `Failed to calculate bounds: ${error instanceof Error ? error.message : 'unknown'}`

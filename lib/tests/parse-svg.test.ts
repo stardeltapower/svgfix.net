@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseSvg, parseViewBox } from '../parse-svg';
+import { parseSvg, parseViewBox, extractVisualPathsWithTransforms } from '../parse-svg';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
@@ -86,6 +86,59 @@ describe('parseSvg', () => {
     const result = parseSvg(svg);
 
     expect(result.paths).toHaveLength(0);
+  });
+});
+
+describe('extractVisualPathsWithTransforms', () => {
+  it('should return identity matrix for paths without parent transforms', () => {
+    const svg = '<svg viewBox="0 0 100 100"><path d="M 10 10 L 90 90"/></svg>';
+    const result = extractVisualPathsWithTransforms(svg);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].d).toBe('M 10 10 L 90 90');
+    expect(result[0].matrix).toEqual([1, 0, 0, 1, 0, 0]);
+  });
+
+  it('should return translate matrix for paths inside translated group', () => {
+    const svg = '<svg viewBox="0 0 100 100"><g transform="translate(50, 60)"><path d="M 0 0 L 10 10"/></g></svg>';
+    const result = extractVisualPathsWithTransforms(svg);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].d).toBe('M 0 0 L 10 10');
+    expect(result[0].matrix).toEqual([1, 0, 0, 1, 50, 60]);
+  });
+
+  it('should accumulate nested group transforms', () => {
+    const svg = '<svg><g transform="translate(10, 20)"><g transform="translate(30, 40)"><path d="M 0 0 L 5 5"/></g></g></svg>';
+    const result = extractVisualPathsWithTransforms(svg);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].matrix).toEqual([1, 0, 0, 1, 40, 60]); // 10+30, 20+40
+  });
+
+  it('should exclude paths inside defs', () => {
+    const svg = '<svg><defs><clipPath><path d="M 0 0 L 100 100"/></clipPath></defs><path d="M 10 10 L 50 50"/></svg>';
+    const result = extractVisualPathsWithTransforms(svg);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].d).toBe('M 10 10 L 50 50');
+  });
+
+  it('should include image elements as synthetic rect paths', () => {
+    const svg = '<svg><g transform="translate(50, 50)"><image x="0" y="0" width="100" height="80"/></g></svg>';
+    const result = extractVisualPathsWithTransforms(svg);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].d).toBe('M0 0h100v80h-100z');
+    expect(result[0].matrix).toEqual([1, 0, 0, 1, 50, 50]);
+  });
+
+  it('should handle scale transform matrix', () => {
+    const svg = '<svg><g transform="scale(2)"><path d="M 5 5 L 10 10"/></g></svg>';
+    const result = extractVisualPathsWithTransforms(svg);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].matrix).toEqual([2, 0, 0, 2, 0, 0]);
   });
 });
 

@@ -16,8 +16,9 @@ export { DEFAULT_OPTIONS } from './types';
 export { processSvg } from './process';
 
 // Export individual functions for advanced usage
-export { parseSvg, parseViewBox } from './parse-svg';
-export { getContentBounds, getPathBounds } from './bounds';
+export { preprocessSvg } from './preprocess';
+export { parseSvg, parseViewBox, extractVisualPathsWithTransforms } from './parse-svg';
+export { getContentBounds, getPathBounds, getTransformAwareBounds } from './bounds';
 export { cropToContent } from './crop';
 export { transformPathsToOrigin } from './transform';
 export { normalizeViewBox } from './normalize';
