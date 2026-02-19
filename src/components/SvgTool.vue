@@ -82,7 +82,7 @@
       <div
         class="mb-6 p-8 bg-[rgb(var(--color-surface))] border border-[rgb(var(--color-border))] rounded-2xl"
       >
-        <div class="svg-preview max-h-64 mx-auto">
+        <div class="svg-preview mx-auto">
           <div class="svg-boundary" v-html="previewHtml" />
         </div>
       </div>
@@ -179,15 +179,14 @@ const originalFileName = ref('fixed.svg');
 
 // Preview needs explicit width/height for inline SVG rendering.
 // The output SVG may have these stripped by normalizeViewBox for portability,
-// so we add them back based on the viewBox for preview only.
+// so we add them back as 100%/auto for preview scaling.
 const previewHtml = computed(() => {
   if (!outputSvg.value) return '';
   const svg = outputSvg.value;
-  if (!/<svg[^>]*\swidth\s*=/i.test(svg) && stats.value?.viewBoxAfter) {
-    const { width, height } = stats.value.viewBoxAfter;
-    return svg.replace(/<svg/i, `<svg width="${width}" height="${height}"`);
-  }
-  return svg;
+  // Strip any existing width/height and add responsive ones for preview
+  let preview = svg.replace(/(<svg[^>]*?)\s+width=["'][^"']*["']/i, '$1');
+  preview = preview.replace(/(<svg[^>]*?)\s+height=["'][^"']*["']/i, '$1');
+  return preview.replace(/<svg/i, '<svg width="100%" height="100%"');
 });
 
 const reduction = computed(() => {
@@ -334,18 +333,21 @@ function reset() {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
 }
 
 .svg-boundary {
-  display: inline-block;
+  display: block;
+  width: 100%;
+  max-height: 320px;
   border: 1px dashed rgba(128, 128, 128, 0.6);
 }
 
 .svg-boundary :deep(svg) {
   display: block;
-  max-width: 100%;
-  max-height: 256px;
-  width: auto;
+  width: 100%;
   height: auto;
+  max-height: 320px;
+  object-fit: contain;
 }
 </style>
