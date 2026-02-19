@@ -83,7 +83,7 @@
         class="mb-6 p-8 bg-[rgb(var(--color-surface))] border border-[rgb(var(--color-border))] rounded-2xl"
       >
         <div class="svg-preview max-h-64 mx-auto">
-          <div class="svg-boundary" v-html="outputSvg" />
+          <div class="svg-boundary" v-html="previewHtml" />
         </div>
       </div>
 
@@ -176,6 +176,19 @@ const copied = ref(false);
 const stats = ref<ProcessingResult['stats'] | null>(null);
 const fileInput = ref<HTMLInputElement | null>(null);
 const originalFileName = ref('fixed.svg');
+
+// Preview needs explicit width/height for inline SVG rendering.
+// The output SVG may have these stripped by normalizeViewBox for portability,
+// so we add them back based on the viewBox for preview only.
+const previewHtml = computed(() => {
+  if (!outputSvg.value) return '';
+  const svg = outputSvg.value;
+  if (!/<svg[^>]*\swidth\s*=/i.test(svg) && stats.value?.viewBoxAfter) {
+    const { width, height } = stats.value.viewBoxAfter;
+    return svg.replace(/<svg/i, `<svg width="${width}" height="${height}"`);
+  }
+  return svg;
+});
 
 const reduction = computed(() => {
   if (!stats.value) return 0;
