@@ -50,6 +50,9 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    permissions:
+      contents: read
+      deployments: write
     steps:
       - uses: actions/checkout@v4
 
@@ -59,44 +62,9 @@ jobs:
           name: build-output
           path: dist
 
-      - name: Setup SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -p ${{ secrets.VPS_SSH_PORT }} ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
-
-      - name: Deploy to VPS
-        run: |
-          # Sync build output to VPS
-          rsync -avz --delete \
-            -e "ssh -p ${{ secrets.VPS_SSH_PORT }}" \
-            dist/ \
-            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/svgfix.net/
-
-          # Copy nginx configuration
-          scp -P ${{ secrets.VPS_SSH_PORT }} \
-            server/nginx.conf \
-            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/tmp/svgfix.net.nginx.conf
-
-          # Install nginx config and reload
-          ssh -p ${{ secrets.VPS_SSH_PORT }} ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} \
-            "sudo mv /tmp/svgfix.net.nginx.conf /etc/nginx/sites-available/svgfix.net && \
-             sudo ln -sf /etc/nginx/sites-available/svgfix.net /etc/nginx/sites-enabled/svgfix.net && \
-             sudo nginx -t && \
-             sudo systemctl reload nginx"
-
-      - name: Health check
-        run: |
-          echo "Waiting 5 seconds for deployment to settle..."
-          sleep 5
-
-          echo "Testing site accessibility..."
-          if curl -f -s -o /dev/null -w "%{http_code}" https://svgfix.net | grep -q "200"; then
-            echo "✓ Site is accessible (HTTP 200)"
-            curl -s https://svgfix.net | head -20
-          else
-            echo "✗ Site returned non-200 status"
-            curl -I https://svgfix.net
-            exit 1
-          fi
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=svgfix --branch=main
